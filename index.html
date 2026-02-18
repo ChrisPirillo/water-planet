@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en"><head><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-1CQ4D3VQ3L"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1CQ4D3VQ3L');
+  </script>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Water Planet: Interactive WebGL Seascape Simulator</title>
+
+<meta name="description" content="Explore a stunning real-time 3D ocean with Water Planet. Customize waves, lighting, and camera physics in this high-performance WebGL visualization.">
+<meta name="keywords" content="WebGL, Seascape, 3D Simulation, Ocean Visualization, Raymarching, Procedural Art, Water Rendering, Interactive Background, 4K Export, Creative Tool">
+<meta name="author" content="Chris Pirillo">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f172a">
+
+<meta property="og:site_name" content="Chris Pirillo's Arcade">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Water Planet: Interactive WebGL Seascape Simulator">
+<meta property="og:description" content="Explore a stunning real-time 3D ocean with Water Planet. Customize waves, lighting, and camera physics in this high-performance WebGL visualization.">
+<meta property="og:url" content="https://pirillo.com/arcade/water-planet.html">
+<meta property="og:image" content="https://pirillo.com/arcade/images/water-planet.png">
+<meta property="og:image:alt" content="Water Planet: Interactive WebGL Seascape Simulator">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ChrisPirillo">
+<meta name="twitter:creator" content="@ChrisPirillo">
+<meta name="twitter:title" content="Water Planet: Interactive WebGL Seascape Simulator">
+<meta name="twitter:description" content="Explore a stunning real-time 3D ocean with Water Planet. Customize waves, lighting, and camera physics in this high-performance WebGL visualization.">
+<meta name="twitter:image" content="https://pirillo.com/arcade/images/water-planet.png">
+<meta name="twitter:domain" content="pirillo.com">
+
+<link rel="canonical" href="https://pirillo.com/arcade/water-planet.html">
+
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Water Planet: Interactive WebGL Seascape Simulator",
+  "description": "Explore a stunning real-time 3D ocean with Water Planet. Customize waves, lighting, and camera physics in this high-performance WebGL visualization.",
+  "keywords": "WebGL, Seascape, 3D Simulation, Ocean Visualization, Raymarching, Procedural Art, Water Rendering, Interactive Background, 4K Export, Creative Tool",
+  "url": "https://pirillo.com/arcade/water-planet.html",
+  "image": "https://pirillo.com/arcade/images/water-planet.png",
+  "primaryImageOfPage": {
+    "@type": "ImageObject",
+    "url": "https://pirillo.com/arcade/images/water-planet.png"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Chris Pirillo",
+    "url": "https://pirillo.com",
+    "sameAs": [
+      "https://x.com/ChrisPirillo"
+    ]
+  },
+  "mainEntity": {
+    "name": "Water Planet: Interactive WebGL Seascape Simulator",
+    "description": "Explore a stunning real-time 3D ocean with Water Planet. Customize waves, lighting, and camera physics in this high-performance WebGL visualization.",
+    "image": "https://pirillo.com/arcade/images/water-planet.png",
+    "operatingSystem": "Web Browser",
+    "author": {
+      "@type": "Person",
+      "name": "Chris Pirillo"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "@type": "WebApplication",
+    "applicationCategory": "Simulation"
+  }
+}</script>
+
+<meta charset="UTF-8">
+<style>*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: system-ui, -apple-system, sans-serif; color: #e2e8f0; }
+#app-container { display: flex; width: 100vw; height: 100vh; overflow: hidden; position: relative; }
+#canvas-container { flex: 1; position: relative; min-width: 0; background: #000; }
+canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+#fade-overlay { position: absolute; inset: 0; background-color: #000; opacity: 1; transition: opacity 0.3s ease-in-out; pointer-events: none; z-index: 50; }
+#menu-trigger { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 40; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+#menu-trigger:hover { background: rgba(15, 23, 42, 0.9); transform: scale(1.05); }
+#menu-panel { width: 0; flex-shrink: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-left: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; z-index: 100; }
+#menu-panel.open { width: 360px; }
+@media (max-width: 768px) { #menu-panel { position: absolute; right: 0; height: 100%; width: 320px; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+#menu-panel.open { transform: translateX(0); width: 320px; }
+}
+.menu-header { position: sticky; top: 0; background: rgba(15, 23, 42, 1); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+.menu-header h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px; margin: 0; flex: 1; text-align: center; }
+.icon-btn { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.icon-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+.header-left, .header-right { width: 32px; display: flex; }
+.menu-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; }
+.control-group { display: flex; flex-direction: column; gap: 10px; }
+.control-label { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #cbd5e1; font-weight: 500; }
+.control-val { font-variant-numeric: tabular-nums; color: #38bdf8; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #334155; border-radius: 3px; outline: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #38bdf8; cursor: pointer; transition: transform 0.1s; }
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.color-picker-wrap { display: flex; align-items: center; gap: 10px; }
+input[type="color"] { -webkit-appearance: none; appearance: none; width: 100%; height: 36px; border: none; border-radius: 6px; background: none; cursor: pointer; }
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; }
+.toggle-wrap { display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn { background: #2563eb; color: white; border: none; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.btn:hover { background: #1d4ed8; }
+.btn:active { transform: scale(0.97); }
+.btn-full { grid-column: 1 / -1; }
+.btn-secondary { background: #334155; }
+.btn-secondary:hover { background: #475569; }
+.btn-accent { background: #0ea5e9; }
+.btn-accent:hover { background: #0284c7; }
+.section-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
+#info-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+#info-modal.open { opacity: 1; pointer-events: auto; }
+.modal-content { background: #1e293b; padding: 32px; border-radius: 16px; width: 90%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+#info-modal.open .modal-content { transform: translateY(0); }
+.modal-content h3 { font-size: 1.5rem; margin-bottom: 12px; color: #f8fafc; }
+.modal-content p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
+.modal-links { display: flex; flex-direction: column; gap: 12px; }
+.modal-links a { color: #38bdf8; text-decoration: none; background: rgba(56, 189, 248, 0.1); padding: 14px; border-radius: 8px; text-align: center; font-weight: 500; transition: background 0.2s, transform 0.1s; }
+.modal-links a:hover { background: rgba(56, 189, 248, 0.2); transform: translateY(-1px); }
+.hidden { display: none !important; }</style>
+</head>
+<body><h1 style="display: none;">Water Planet: Interactive WebGL Seascape Simulator</h1>
+
+<div id="app-container">
+    <!-- Canvas Area -->
+    <div id="canvas-container">
+        <canvas id="glcanvas"></canvas>
+        <div id="fade-overlay"></div>
+        
+        <button id="menu-trigger" aria-label="Open Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+    </div>
+
+    <!-- Settings Sidebar -->
+    <div id="menu-panel">
+        <div class="menu-header">
+            <div class="header-left">
+                <button id="btn-info" class="icon-btn" aria-label="Information">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </button>
+            </div>
+            <h2>Water Planet</h2>
+            <div class="header-right">
+                <button id="btn-close-menu" class="icon-btn" aria-label="Close Settings">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-body" id="controls-container">
+            <!-- Data Management & Output Actions -->
+            <div class="action-grid">
+                <button class="btn btn-full btn-accent" id="btn-randomize">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-10.26l5.58 5.58"></path></svg>
+                    Randomize View
+                </button>
+                <button class="btn btn-secondary" id="btn-export-4k">Export 4K</button>
+                <button class="btn btn-secondary" id="btn-reset">Defaults</button>
+            </div>
+
+            <div class="action-grid">
+                <button class="btn btn-secondary" id="btn-export-settings">Export Data</button>
+                <button class="btn btn-secondary" id="btn-import-settings">Import Data</button>
+                <input type="file" id="file-import" accept=".json" class="hidden">
+            </div>
+
+            <!-- Auto Advance -->
+            <label class="toggle-wrap">
+                <span style="font-size: 0.9rem; font-weight: 500;">Auto-Advance</span>
+                <input type="checkbox" id="ctrl-auto-advance" style="width: 18px; height: 18px; cursor: pointer;">
+            </label>
+            <div class="control-group" id="auto-interval-group" style="opacity: 0.5; pointer-events: none;">
+                <label class="control-label">Interval (Seconds) <span class="control-val" id="val-auto-interval">15s</span></label>
+                <input type="range" id="ctrl-auto-interval" min="5" max="60" step="1" value="15">
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Visualization Parameters -->
+            <div class="control-group">
+                <label class="control-label">Zoom <span class="control-val" id="val-zoom">1.0</span></label>
+                <input type="range" id="ctrl-zoom" min="0.1" max="3.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Camera Speed <span class="control-val" id="val-camera-speed">5.0</span></label>
+                <input type="range" id="ctrl-camera-speed" min="-10.0" max="30.0" step="0.5" value="5.0">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Camera Sway <span class="control-val" id="val-camera-sway">1.0</span></label>
+                <input type="range" id="ctrl-camera-sway" min="0.0" max="3.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Geometry Iterations <span class="control-val" id="val-iter-geo">3</span></label>
+                <input type="range" id="ctrl-iter-geo" min="1" max="10" step="1" value="3">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Fragment Iterations <span class="control-val" id="val-iter-frag">5</span></label>
+                <input type="range" id="ctrl-iter-frag" min="5" max="15" step="1" value="5">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Raymarch Steps <span class="control-val" id="val-num-steps">32</span></label>
+                <input type="range" id="ctrl-num-steps" min="10" max="64" step="1" value="32">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Sea Height <span class="control-val" id="val-sea-height">0.6</span></label>
+                <input type="range" id="ctrl-sea-height" min="0.1" max="2.0" step="0.01" value="0.6">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Choppiness <span class="control-val" id="val-sea-choppy">4.0</span></label>
+                <input type="range" id="ctrl-sea-choppy" min="1.0" max="8.0" step="0.1" value="4.0">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Wave Speed <span class="control-val" id="val-sea-speed">0.8</span></label>
+                <input type="range" id="ctrl-sea-speed" min="0.0" max="3.0" step="0.1" value="0.8">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Wave Frequency <span class="control-val" id="val-sea-freq">0.16</span></label>
+                <input type="range" id="ctrl-sea-freq" min="0.05" max="0.5" step="0.01" value="0.16">
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Sea Base Color</label>
+                <input type="color" id="ctrl-sea-base" value="#00172e">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Water Tint</label>
+                <input type="color" id="ctrl-sea-water" value="#7a895c">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Sky Color</label>
+                <input type="color" id="ctrl-sky-color" value="#ffffff">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div id="info-modal">
+    <div class="modal-content">
+        <h3>About Water Planet</h3>
+        <p>A real-time WebGL visualization based on "Seascape" by Alexander Alekseev (TDM - 2014). Adjusted for modern browsers with robust interactive controls.</p>
+        <div class="modal-links">
+            <a href="https://pirillo.com/arcade/" target="_blank" rel="noopener">More Apps</a>
+            <a href="https://chris.pirillo.com/" target="_blank" rel="noopener">Follow Chris</a>
+            <a href="https://ctrlaltcreate.live/" target="_blank" rel="noopener">Learn More</a>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * Seascape WebGL Implementation & State Management
+ */
+
+// --- STATE MANAGEMENT ---
+const defaultState = {
+    zoom: 1.0,
+    cameraSpeed: 5.0,
+    cameraSway: 0.1,
+    iterGeometry: 3,
+    iterFragment: 5,
+    numSteps: 32,
+    seaHeight: 0.6,
+    seaChoppy: 4.0,
+    seaSpeed: 0.8,
+    seaFreq: 0.16,
+    seaBase: [0.0, 0.09, 0.18],       // #00172E
+    seaWaterColor: [0.48, 0.54, 0.36], // #7a895c
+    skyColor: [1.0, 1.0, 1.0],         // #ffffff
+    autoAdvance: false,
+    autoAdvanceInterval: 15
+};
+
+let state = { ...defaultState };
+let isMenuOpen = false;
+let autoAdvanceTimer = null;
+let animationFrameId = null;
+
+// --- UTILITIES ---
+const hexToRgb = (hex) => {
+    let bigint = parseInt(hex.slice(1), 16);
+    return [((bigint >> 16) & 255) / 255, ((bigint >> 8) & 255) / 255, (bigint & 255) / 255];
+};
+
+const rgbToHex = (r, g, b) => {
+    return "#" + (1 << 24 | Math.round(r * 255) << 16 | Math.round(g * 255) << 8 | Math.round(b * 255)).toString(16).slice(1);
+};
+
+const getRandomFloat = (min, max) => Math.random() * (max - min) + min;
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const getRandomColor = () => [Math.random(), Math.random(), Math.random()];
+
+// --- WEBGL SETUP ---
+const canvas = document.getElementById('glcanvas');
+// Request WebGL2 for broader loop/uniform support
+const gl = canvas.getContext('webgl2', { antialias: false, preserveDrawingBuffer: true }) || 
+           canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: true });
+
+if (!gl) {
+    alert("WebGL is not supported by your browser.");
+}
+
+const vertexShaderSource = `#version 300 es
+    in vec4 a_position;
+    void main() {
+        gl_Position = a_position;
+    }
+`;
+
+// Note: To ensure strict WebGL2 compliance without dynamically rewriting loop bounds, 
+// we use uniforms inside loops with constant max limits and break conditions.
+const fragmentShaderSource = `#version 300 es
+    precision highp float;
+    out vec4 fragColor;
+
+    uniform vec2 iResolution;
+    uniform float iTime;
+    uniform float iMouseX; // using just X for time acceleration like original
+    uniform float u_Zoom;
+
+    // Tweaks
+    uniform int u_NUM_STEPS;
+    uniform int u_ITER_GEOMETRY;
+    uniform int u_ITER_FRAGMENT;
+    uniform float u_SEA_HEIGHT;
+    uniform float u_SEA_CHOPPY;
+    uniform float u_SEA_SPEED;
+    uniform float u_SEA_FREQ;
+    uniform vec3 u_SEA_BASE;
+    uniform vec3 u_SEA_WATER_COLOR;
+    uniform vec3 u_SKY_COLOR;
+    uniform float u_CAMERA_SPEED;
+    uniform float u_CAMERA_SWAY;
+
+    const float PI = 3.141592;
+    const float EPSILON = 1e-3;
+
+    mat3 fromEuler(vec3 ang) {
+        vec2 a1 = vec2(sin(ang.x),cos(ang.x));
+        vec2 a2 = vec2(sin(ang.y),cos(ang.y));
+        vec2 a3 = vec2(sin(ang.z),cos(ang.z));
+        mat3 m;
+        m[0] = vec3(a1.y*a3.y+a1.x*a2.x*a3.x,a1.y*a2.x*a3.x+a3.y*a1.x,-a2.y*a3.x);
+        m[1] = vec3(-a2.y*a1.x,a1.y*a2.y,a2.x);
+        m[2] = vec3(a3.y*a1.x*a2.x+a1.y*a3.x,a1.x*a3.x-a1.y*a3.y*a2.x,a2.y*a3.y);
+        return m;
+    }
+
+    float hash( vec2 p ) {
+        float h = dot(p,vec2(127.1,311.7));
+        return fract(sin(h)*43758.5453123);
+    }
+
+    float noise( in vec2 p ) {
+        vec2 i = floor( p );
+        vec2 f = fract( p );
+        vec2 u = f*f*(3.0-2.0*f);
+        return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), hash( i + vec2(1.0,0.0) ), u.x),
+                        mix( hash( i + vec2(0.0,1.0) ), hash( i + vec2(1.0,1.0) ), u.x), u.y);
+    }
+
+    float diffuse(vec3 n,vec3 l,float p) {
+        return pow(dot(n,l) * 0.4 + 0.6,p);
+    }
+
+    float specular(vec3 n,vec3 l,vec3 e,float s) {
+        float nrm = (s + 8.0) / (PI * 8.0);
+        return pow(max(dot(reflect(e,n),l),0.0),s) * nrm;
+    }
+
+    vec3 getSkyColor(vec3 e) {
+        e.y = (max(e.y,0.0)*0.8+0.2)*0.8;
+        return vec3(pow(1.0-e.y,2.0), 1.0-e.y, 0.6+(1.0-e.y)*0.4) * 1.1 * u_SKY_COLOR;
+    }
+
+    float sea_octave(vec2 uv, float choppy) {
+        uv += noise(uv);
+        vec2 wv = 1.0-abs(sin(uv));
+        vec2 swv = abs(cos(uv));
+        wv = mix(wv,swv,wv);
+        return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
+    }
+
+    float map(vec3 p) {
+        float freq = u_SEA_FREQ;
+        float amp = u_SEA_HEIGHT;
+        float choppy = u_SEA_CHOPPY;
+        vec2 uv = p.xz; uv.x *= 0.75;
+        float SEA_TIME = 1.0 + iTime * u_SEA_SPEED;
+        mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+
+        float d, h = 0.0;
+        for(int i = 0; i < 20; i++) {
+            if(i >= u_ITER_GEOMETRY) break;
+            d = sea_octave((uv+SEA_TIME)*freq,choppy);
+            d += sea_octave((uv-SEA_TIME)*freq,choppy);
+            h += d * amp;
+            uv *= octave_m; freq *= 1.9; amp *= 0.22;
+            choppy = mix(choppy,1.0,0.2);
+        }
+        return p.y - h;
+    }
+
+    float map_detailed(vec3 p) {
+        float freq = u_SEA_FREQ;
+        float amp = u_SEA_HEIGHT;
+        float choppy = u_SEA_CHOPPY;
+        vec2 uv = p.xz; uv.x *= 0.75;
+        float SEA_TIME = 1.0 + iTime * u_SEA_SPEED;
+        mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+
+        float d, h = 0.0;
+        for(int i = 0; i < 20; i++) {
+            if(i >= u_ITER_FRAGMENT) break;
+            d = sea_octave((uv+SEA_TIME)*freq,choppy);
+            d += sea_octave((uv-SEA_TIME)*freq,choppy);
+            h += d * amp;
+            uv *= octave_m; freq *= 1.9; amp *= 0.22;
+            choppy = mix(choppy,1.0,0.2);
+        }
+        return p.y - h;
+    }
+
+    vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
+        float fresnel = clamp(1.0 - dot(n, -eye), 0.0, 1.0);
+        fresnel = min(fresnel * fresnel * fresnel, 0.5);
+
+        vec3 reflected = getSkyColor(reflect(eye, n));
+        vec3 refracted = u_SEA_BASE + diffuse(n, l, 80.0) * u_SEA_WATER_COLOR * 0.12;
+        vec3 color = mix(refracted, reflected, fresnel);
+
+        float atten = max(1.0 - dot(dist, dist) * 0.001, 0.0);
+        color += u_SEA_WATER_COLOR * (p.y - u_SEA_HEIGHT) * 0.18 * atten;
+        color += specular(n, l, eye, 600.0 * inversesqrt(dot(dist,dist)));
+
+        return color;
+    }
+
+    vec3 getNormal(vec3 p, float eps) {
+        vec3 n;
+        n.y = map_detailed(p);
+        n.x = map_detailed(vec3(p.x+eps,p.y,p.z)) - n.y;
+        n.z = map_detailed(vec3(p.x,p.y,p.z+eps)) - n.y;
+        n.y = eps;
+        return normalize(n);
+    }
+
+    float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
+        float tm = 0.0;
+        float tx = 1000.0;
+        float hx = map(ori + dir * tx);
+        if(hx > 0.0) {
+            p = ori + dir * tx;
+            return tx;
+        }
+        float hm = map(ori);
+        for(int i = 0; i < 100; i++) {
+            if(i >= u_NUM_STEPS) break;
+            float tmid = mix(tm, tx, hm / (hm - hx));
+            p = ori + dir * tmid;
+            float hmid = map(p);
+            if(hmid < 0.0) {
+                tx = tmid;
+                hx = hmid;
+            } else {
+                tm = tmid;
+                hm = hmid;
+            }
+            if(abs(hmid) < EPSILON) break;
+        }
+        return mix(tm, tx, hm / (hm - hx));
+    }
+
+    vec3 getPixel(in vec2 coord, float time) {
+        vec2 uv = coord / iResolution.xy;
+        uv = uv * 2.0 - 1.0;
+        uv.x *= iResolution.x / iResolution.y;
+
+        vec3 ang = vec3(
+            sin(time*3.0)*0.1 * u_CAMERA_SWAY,
+            sin(time)*0.2 * u_CAMERA_SWAY + 0.3, // +0.3 keeps the base pitch looking slightly down
+            time * u_CAMERA_SWAY
+        );
+        
+        vec3 ori = vec3(0.0,3.5,time*u_CAMERA_SPEED);
+        vec3 dir = normalize(vec3(uv.xy,-2.0)); 
+        dir.z += length(uv) * 0.14 * u_Zoom;
+        dir = normalize(dir) * fromEuler(ang);
+
+        vec3 p;
+        heightMapTracing(ori,dir,p);
+        vec3 dist = p - ori;
+        
+        float EPSILON_NRM = 0.1 / iResolution.x;
+        vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM);
+        vec3 light = normalize(vec3(0.0,1.0,0.8));
+
+        return mix(
+            getSkyColor(dir),
+            getSeaColor(p,n,light,dir,dist),
+            pow(smoothstep(0.0,-0.02,dir.y),0.2));
+    }
+
+    void main() {
+        float time = iTime * 0.3 + iMouseX*0.01;
+        vec2 fragCoord = gl_FragCoord.xy;
+        vec3 color = getPixel(fragCoord, time);
+        fragColor = vec4(pow(color,vec3(0.65)), 1.0);
+    }
+`;
+
+function compileShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error("Shader compile error:", gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+    }
+    return shader;
+}
+
+const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+const program = gl.createProgram();
+gl.attachShader(program, vertexShader);
+gl.attachShader(program, fragmentShader);
+gl.linkProgram(program);
+
+if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error("Program link error:", gl.getProgramInfoLog(program));
+}
+
+// Fullscreen quad
+const positionBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1, -1,  1, -1, -1,  1,
+    -1,  1,  1, -1,  1,  1
+]), gl.STATIC_DRAW);
+
+const positionLocation = gl.getAttribLocation(program, "a_position");
+gl.enableVertexAttribArray(positionLocation);
+gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+// Uniform locations
+const uniforms = {
+    iResolution: gl.getUniformLocation(program, "iResolution"),
+    iTime: gl.getUniformLocation(program, "iTime"),
+    iMouseX: gl.getUniformLocation(program, "iMouseX"),
+    u_Zoom: gl.getUniformLocation(program, "u_Zoom"),
+    u_CAMERA_SPEED: gl.getUniformLocation(program, "u_CAMERA_SPEED"),
+    u_CAMERA_SWAY: gl.getUniformLocation(program, "u_CAMERA_SWAY"),
+    u_NUM_STEPS: gl.getUniformLocation(program, "u_NUM_STEPS"),
+    u_ITER_GEOMETRY: gl.getUniformLocation(program, "u_ITER_GEOMETRY"),
+    u_ITER_FRAGMENT: gl.getUniformLocation(program, "u_ITER_FRAGMENT"),
+    u_SEA_HEIGHT: gl.getUniformLocation(program, "u_SEA_HEIGHT"),
+    u_SEA_CHOPPY: gl.getUniformLocation(program, "u_SEA_CHOPPY"),
+    u_SEA_SPEED: gl.getUniformLocation(program, "u_SEA_SPEED"),
+    u_SEA_FREQ: gl.getUniformLocation(program, "u_SEA_FREQ"),
+    u_SEA_BASE: gl.getUniformLocation(program, "u_SEA_BASE"),
+    u_SEA_WATER_COLOR: gl.getUniformLocation(program, "u_SEA_WATER_COLOR"),
+    u_SKY_COLOR: gl.getUniformLocation(program, "u_SKY_COLOR")
+};
+
+// --- RENDER LOOP ---
+let startTime = performance.now();
+let mouseXAccum = 0; // Accumulated mouse horizontal pan
+
+function render(time, forceRender = false) {
+    if (!forceRender) {
+        animationFrameId = requestAnimationFrame(render);
+        
+        // Auto resize only when not forcing render
+        const displayWidth  = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+
+        if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+            canvas.width  = displayWidth;
+            canvas.height = displayHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    gl.useProgram(program);
+
+    gl.uniform2f(uniforms.iResolution, canvas.width, canvas.height);
+    gl.uniform1f(uniforms.iTime, (time - startTime) * 0.001);
+    gl.uniform1f(uniforms.iMouseX, mouseXAccum);
+    
+    gl.uniform1f(uniforms.u_Zoom, state.zoom);
+    gl.uniform1f(uniforms.u_CAMERA_SPEED, state.cameraSpeed);
+    gl.uniform1f(uniforms.u_CAMERA_SWAY, state.cameraSway);
+    gl.uniform1i(uniforms.u_NUM_STEPS, state.numSteps);
+    gl.uniform1i(uniforms.u_ITER_GEOMETRY, state.iterGeometry);
+    gl.uniform1i(uniforms.u_ITER_FRAGMENT, state.iterFragment);
+    gl.uniform1f(uniforms.u_SEA_HEIGHT, state.seaHeight);
+    gl.uniform1f(uniforms.u_SEA_CHOPPY, state.seaChoppy);
+    gl.uniform1f(uniforms.u_SEA_SPEED, state.seaSpeed);
+    gl.uniform1f(uniforms.u_SEA_FREQ, state.seaFreq);
+    gl.uniform3fv(uniforms.u_SEA_BASE, state.seaBase);
+    gl.uniform3fv(uniforms.u_SEA_WATER_COLOR, state.seaWaterColor);
+    gl.uniform3fv(uniforms.u_SKY_COLOR, state.skyColor);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+}
+
+// --- UI SYNC ---
+const DOM = {
+    zoom: document.getElementById('ctrl-zoom'), valZoom: document.getElementById('val-zoom'),
+    cameraSpeed: document.getElementById('ctrl-camera-speed'), valCameraSpeed: document.getElementById('val-camera-speed'),
+    cameraSway: document.getElementById('ctrl-camera-sway'), valCameraSway: document.getElementById('val-camera-sway'),
+    iterGeo: document.getElementById('ctrl-iter-geo'), valIterGeo: document.getElementById('val-iter-geo'),
+    iterFrag: document.getElementById('ctrl-iter-frag'), valIterFrag: document.getElementById('val-iter-frag'),
+    numSteps: document.getElementById('ctrl-num-steps'), valNumSteps: document.getElementById('val-num-steps'),
+    seaHeight: document.getElementById('ctrl-sea-height'), valSeaHeight: document.getElementById('val-sea-height'),
+    seaChoppy: document.getElementById('ctrl-sea-choppy'), valSeaChoppy: document.getElementById('val-sea-choppy'),
+    seaSpeed: document.getElementById('ctrl-sea-speed'), valSeaSpeed: document.getElementById('val-sea-speed'),
+    seaFreq: document.getElementById('ctrl-sea-freq'), valSeaFreq: document.getElementById('val-sea-freq'),
+    seaBase: document.getElementById('ctrl-sea-base'),
+    seaWater: document.getElementById('ctrl-sea-water'),
+    skyColor: document.getElementById('ctrl-sky-color'),
+    autoAdv: document.getElementById('ctrl-auto-advance'),
+    autoInt: document.getElementById('ctrl-auto-interval'), valAutoInt: document.getElementById('val-auto-interval'),
+    autoGroup: document.getElementById('auto-interval-group')
+};
+
+function updateUI() {
+    DOM.zoom.value = state.zoom; DOM.valZoom.innerText = state.zoom.toFixed(1);
+    DOM.cameraSpeed.value = state.cameraSpeed; DOM.valCameraSpeed.innerText = state.cameraSpeed.toFixed(1);
+    DOM.cameraSway.value = state.cameraSway; DOM.valCameraSway.innerText = state.cameraSway.toFixed(1);
+    DOM.iterGeo.value = state.iterGeometry; DOM.valIterGeo.innerText = state.iterGeometry;
+    DOM.iterFrag.value = state.iterFragment; DOM.valIterFrag.innerText = state.iterFragment;
+    DOM.numSteps.value = state.numSteps; DOM.valNumSteps.innerText = state.numSteps;
+    DOM.seaHeight.value = state.seaHeight; DOM.valSeaHeight.innerText = state.seaHeight.toFixed(2);
+    DOM.seaChoppy.value = state.seaChoppy; DOM.valSeaChoppy.innerText = state.seaChoppy.toFixed(1);
+    DOM.seaSpeed.value = state.seaSpeed; DOM.valSeaSpeed.innerText = state.seaSpeed.toFixed(1);
+    DOM.seaFreq.value = state.seaFreq; DOM.valSeaFreq.innerText = state.seaFreq.toFixed(2);
+    
+    DOM.seaBase.value = rgbToHex(...state.seaBase);
+    DOM.seaWater.value = rgbToHex(...state.seaWaterColor);
+    DOM.skyColor.value = rgbToHex(...state.skyColor);
+
+    DOM.autoAdv.checked = state.autoAdvance;
+    DOM.autoInt.value = state.autoAdvanceInterval;
+    DOM.valAutoInt.innerText = state.autoAdvanceInterval + 's';
+    DOM.autoGroup.style.opacity = state.autoAdvance ? '1' : '0.5';
+    DOM.autoGroup.style.pointerEvents = state.autoAdvance ? 'auto' : 'none';
+
+    handleAutoAdvanceTimer();
+}
+
+function bindInput(elem, prop, isFloat = true) {
+    elem.addEventListener('input', (e) => {
+        state[prop] = isFloat ? parseFloat(e.target.value) : parseInt(e.target.value);
+        updateUI();
+    });
+}
+
+bindInput(DOM.zoom, 'zoom');
+bindInput(DOM.cameraSpeed, 'cameraSpeed');
+bindInput(DOM.cameraSway, 'cameraSway');
+bindInput(DOM.iterGeo, 'iterGeometry', false);
+bindInput(DOM.iterFrag, 'iterFragment', false);
+bindInput(DOM.numSteps, 'numSteps', false);
+bindInput(DOM.seaHeight, 'seaHeight');
+bindInput(DOM.seaChoppy, 'seaChoppy');
+bindInput(DOM.seaSpeed, 'seaSpeed');
+bindInput(DOM.seaFreq, 'seaFreq');
+
+DOM.seaBase.addEventListener('input', e => { state.seaBase = hexToRgb(e.target.value); updateUI(); });
+DOM.seaWater.addEventListener('input', e => { state.seaWaterColor = hexToRgb(e.target.value); updateUI(); });
+DOM.skyColor.addEventListener('input', e => { state.skyColor = hexToRgb(e.target.value); updateUI(); });
+
+DOM.autoAdv.addEventListener('change', e => { state.autoAdvance = e.target.checked; updateUI(); });
+bindInput(DOM.autoInt, 'autoAdvanceInterval', false);
+
+// --- RANDOMIZATION & TRANSITION ---
+function setRandomState() {
+    state.zoom = getRandomFloat(0.5, 2.0);
+    state.cameraSpeed = getRandomFloat(-5.0, 20.0);
+    // cameraSway intentionally omitted to prevent motion sickness during auto-advance
+    state.iterGeometry = getRandomInt(2, 6);
+    state.iterFragment = getRandomInt(5, 8);
+    state.numSteps = getRandomInt(20, 50);
+    state.seaHeight = getRandomFloat(0.2, 1.2);
+    state.seaChoppy = getRandomFloat(1.5, 6.0);
+    state.seaSpeed = getRandomFloat(0.2, 2.0);
+    state.seaFreq = getRandomFloat(0.08, 0.3);
+    state.seaBase = getRandomColor();
+    state.seaWaterColor = getRandomColor();
+    state.skyColor = getRandomColor();
+    // Intentionally omit randomizing autoAdvance properties to not annoy users
+    updateUI();
+}
+
+function triggerFadeSwapFade() {
+    const overlay = document.getElementById('fade-overlay');
+    overlay.style.opacity = '1';
+    
+    setTimeout(() => {
+        setRandomState();
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+        }, 100); 
+    }, 300); // Wait for fade out
+}
+
+function handleAutoAdvanceTimer() {
+    if (autoAdvanceTimer) clearInterval(autoAdvanceTimer);
+    if (state.autoAdvance) {
+        autoAdvanceTimer = setInterval(triggerFadeSwapFade, state.autoAdvanceInterval * 1000);
+    }
+}
+
+// --- INTERACTION HANDLING ---
+let isDragging = false;
+let pointerDownTime = 0;
+let lastPointerX = 0;
+let lastTapTime = 0;
+let touchStartDist = 0;
+let startZoom = 1.0;
+
+canvas.addEventListener('pointerdown', e => {
+    isDragging = true;
+    pointerDownTime = performance.now();
+    lastPointerX = e.clientX;
+    canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    // Don't pan if multi-touching
+    if (e.pointerType === 'touch' && !e.isPrimary) return; 
+
+    const dx = e.clientX - lastPointerX;
+    mouseXAccum -= dx * 2.0; // scale pan speed
+    lastPointerX = e.clientX;
+});
+
+canvas.addEventListener('pointerup', e => {
+    if(!isDragging) return;
+    isDragging = false;
+    canvas.releasePointerCapture(e.pointerId);
+
+    const duration = performance.now() - pointerDownTime;
+    
+    // Detect Click / Tap
+    if (duration < 250) {
+        if (isMenuOpen) {
+            toggleMenu(); // Close menu if clicking outside
+            return;
+        }
+
+        if (e.pointerType === 'mouse') {
+            triggerFadeSwapFade();
+        } else if (e.pointerType === 'touch') {
+            const now = performance.now();
+            if (now - lastTapTime < 300) {
+                triggerFadeSwapFade(); // Double tap recognized
+                lastTapTime = 0; 
+            } else {
+                lastTapTime = now;
+            }
+        }
+    }
+});
+
+// Pinch Zoom (Touch specific logic, pointer API is awkward for distance)
+canvas.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+        isDragging = false; 
+        touchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        startZoom = state.zoom;
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        const delta = touchStartDist / dist;
+        state.zoom = Math.max(0.1, Math.min(3.0, startZoom * delta));
+        updateUI();
+    }
+}, { passive: false });
+
+// Mouse Wheel Zoom
+canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    state.zoom += e.deltaY * 0.001;
+    state.zoom = Math.max(0.1, Math.min(3.0, state.zoom));
+    updateUI();
+}, { passive: false });
+
+// --- UI ACTIONS ---
+const menuPanel = document.getElementById('menu-panel');
+const toggleMenu = () => {
+    isMenuOpen = !isMenuOpen;
+    menuPanel.classList.toggle('open', isMenuOpen);
+};
+
+document.getElementById('menu-trigger').addEventListener('click', toggleMenu);
+document.getElementById('btn-close-menu').addEventListener('click', toggleMenu);
+
+document.getElementById('btn-randomize').addEventListener('click', triggerFadeSwapFade);
+document.getElementById('btn-reset').addEventListener('click', () => {
+    state = { ...defaultState };
+    mouseXAccum = 0;
+    updateUI();
+});
+
+// Export 4K
+document.getElementById('btn-export-4k').addEventListener('click', () => {
+    const origW = canvas.width;
+    const origH = canvas.height;
+    
+    // Temporarily resize to 4K
+    canvas.width = 3840;
+    canvas.height = 2160;
+    gl.viewport(0, 0, 3840, 2160);
+    
+    render(performance.now(), true); // Force synchronous render
+    
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // Restore
+    canvas.width = origW;
+    canvas.height = origH;
+    gl.viewport(0, 0, origW, origH);
+    
+    const a = document.createElement('a');
+    a.href = dataURL;
+    a.download = `WaterPlanet_4K_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
+    a.click();
+});
+
+// Settings IO
+document.getElementById('btn-export-settings').addEventListener('click', () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+    const a = document.createElement('a');
+    a.href = dataStr;
+    a.download = `WaterPlanet_Settings_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    a.click();
+});
+
+document.getElementById('btn-import-settings').addEventListener('click', () => {
+    document.getElementById('file-import').click();
+});
+
+document.getElementById('file-import').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const imported = JSON.parse(event.target.result);
+            state = { ...state, ...imported };
+            updateUI();
+        } catch (err) {
+            alert('Invalid settings file.');
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset
+});
+
+// Info Modal
+const modal = document.getElementById('info-modal');
+document.getElementById('btn-info').addEventListener('click', () => modal.classList.add('open'));
+modal.addEventListener('click', e => {
+    if (e.target === modal) modal.classList.remove('open');
+});
+
+// Global Esc Key
+window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        if (modal.classList.contains('open')) {
+            modal.classList.remove('open');
+        } else if (isMenuOpen) {
+            toggleMenu();
+        }
+    }
+});
+
+// --- INIT ---
+window.onload = () => {
+    // Start with random settings on load
+    setRandomState();
+    
+    // Clear the black overlay to reveal
+    setTimeout(() => {
+        document.getElementById('fade-overlay').style.opacity = '0';
+    }, 100);
+
+    // Start loop
+    requestAnimationFrame(render);
+};
+</script>
+
+</body></html>
